@@ -16,6 +16,18 @@ const config: Config = {
           800: '#1a1a2e', // Lighter card
           700: '#252540', // Border/Hover
         },
+        // Cosmic Theme (Lighter, more vibrant)
+        cosmic: {
+          950: '#0f172a', // Slate-900 base
+          900: '#1e1b4b', // Indigo-950
+          800: '#312e81', // Indigo-900
+          700: '#4338ca', // Indigo-700
+          600: '#4f46e5', // Indigo-600
+          500: '#6366f1', // Indigo-500
+          400: '#818cf8', // Indigo-400
+          300: '#a5b4fc', // Indigo-300
+          100: '#e0e7ff', // Indigo-100
+        },
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',

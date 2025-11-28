@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Target, Lightbulb } from 'lucide-react';
+import { TrendingUp, Target, Lightbulb, BarChart3 } from 'lucide-react';
 import { Memory } from '@/lib/types';
 import { generateHabitAnalysis } from '@/lib/groq/client';
 
@@ -44,50 +44,65 @@ export default function AnalyticsView({ memories }: AnalyticsViewProps) {
     }, {} as Record<string, number>);
 
     return (
-        <div className="space-y-6 pb-24">
+        <div className="space-y-6 pb-32">
             {/* Productivity Score */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-3xl p-6 shadow-xl text-center"
+                className="relative overflow-hidden rounded-3xl p-8 text-center"
             >
-                <TrendingUp size={32} className="mx-auto mb-2" />
-                <h2 className="text-2xl font-bold mb-1">Productivity Score</h2>
-                {loading ? (
-                    <div className="text-4xl font-bold">Loading...</div>
-                ) : (
-                    <div className="text-6xl font-bold">{analysis?.productivityScore || 0}</div>
-                )}
-                <p className="text-white/80 mt-2">out of 100</p>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-accent-600 opacity-90" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+
+                <div className="relative z-10">
+                    <div className="inline-flex p-3 rounded-2xl bg-white/10 backdrop-blur-md mb-4 shadow-inner border border-white/20">
+                        <TrendingUp size={32} className="text-white" />
+                    </div>
+                    <h2 className="text-xl font-medium text-primary-100 mb-2">Productivity Score</h2>
+                    {loading ? (
+                        <div className="text-6xl font-bold text-white/50 animate-pulse">--</div>
+                    ) : (
+                        <div className="text-7xl font-bold text-white tracking-tighter drop-shadow-lg">
+                            {analysis?.productivityScore || 0}
+                        </div>
+                    )}
+                    <p className="text-primary-200 mt-2 font-medium">out of 100</p>
+                </div>
             </motion.div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                    <p className="text-sm text-slate-600 mb-1">Total Memories</p>
-                    <p className="text-3xl font-bold text-slate-900">{totalMemories}</p>
+                <div className="glass-card rounded-3xl p-6 text-center">
+                    <p className="text-sm text-slate-400 mb-2 font-medium uppercase tracking-wider">Total Memories</p>
+                    <p className="text-4xl font-bold text-white">{totalMemories}</p>
                 </div>
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                    <p className="text-sm text-slate-600 mb-1">Completion Rate</p>
-                    <p className="text-3xl font-bold text-green-600">{completionRate}%</p>
+                <div className="glass-card rounded-3xl p-6 text-center">
+                    <p className="text-sm text-slate-400 mb-2 font-medium uppercase tracking-wider">Completion</p>
+                    <p className="text-4xl font-bold text-emerald-400">{completionRate}%</p>
                 </div>
             </div>
 
             {/* Category Breakdown */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                <h3 className="font-bold text-slate-900 mb-4">Category Breakdown</h3>
-                <div className="space-y-3">
+            <div className="glass-card rounded-3xl p-6">
+                <div className="flex items-center gap-2 mb-6">
+                    <BarChart3 size={20} className="text-primary-400" />
+                    <h3 className="font-bold text-white text-lg">Breakdown</h3>
+                </div>
+                <div className="space-y-4">
                     {Object.entries(categoryBreakdown).map(([category, count]) => (
                         <div key={category}>
-                            <div className="flex justify-between text-sm mb-1">
-                                <span className="font-medium text-slate-700 capitalize">{category}</span>
-                                <span className="text-slate-600">{count}</span>
+                            <div className="flex justify-between text-sm mb-2">
+                                <span className="font-medium text-slate-300 capitalize">{category}</span>
+                                <span className="text-slate-400 font-mono">{count}</span>
                             </div>
-                            <div className="bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div className="bg-midnight-950 h-2.5 rounded-full overflow-hidden border border-white/5">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${(count / totalMemories) * 100}%` }}
-                                    className="h-full bg-primary-600 rounded-full"
+                                    className={`h-full rounded-full ${category === 'task' ? 'bg-primary-500' :
+                                            category === 'reminder' ? 'bg-amber-500' :
+                                                category === 'idea' ? 'bg-accent-500' : 'bg-slate-500'
+                                        }`}
                                     transition={{ duration: 0.5, delay: 0.2 }}
                                 />
                             </div>
@@ -102,32 +117,36 @@ export default function AnalyticsView({ memories }: AnalyticsViewProps) {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-blue-50 rounded-2xl p-5 border border-blue-100"
+                        className="glass-card rounded-3xl p-6 border-l-4 border-l-primary-500"
                     >
-                        <div className="flex items-center gap-2 mb-2">
-                            <Target size={20} className="text-blue-600" />
-                            <h3 className="font-bold text-blue-900">Pattern Detected</h3>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 bg-primary-500/20 rounded-lg">
+                                <Target size={20} className="text-primary-400" />
+                            </div>
+                            <h3 className="font-bold text-white text-lg">Pattern Detected</h3>
                         </div>
-                        <p className="text-blue-800">{analysis.pattern}</p>
+                        <p className="text-slate-300 leading-relaxed">{analysis.pattern}</p>
                     </motion.div>
 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="bg-amber-50 rounded-2xl p-5 border border-amber-100"
+                        className="glass-card rounded-3xl p-6 border-l-4 border-l-accent-500"
                     >
-                        <div className="flex items-center gap-2 mb-2">
-                            <Lightbulb size={20} className="text-amber-600" />
-                            <h3 className="font-bold text-amber-900">Suggestion</h3>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 bg-accent-500/20 rounded-lg">
+                                <Lightbulb size={20} className="text-accent-400" />
+                            </div>
+                            <h3 className="font-bold text-white text-lg">Suggestion</h3>
                         </div>
-                        <p className="text-amber-800">{analysis.suggestion}</p>
+                        <p className="text-slate-300 leading-relaxed">{analysis.suggestion}</p>
                     </motion.div>
                 </>
             )}
 
             {totalMemories === 0 && (
-                <div className="text-center py-12 text-slate-500">
+                <div className="text-center py-12 text-slate-600">
                     <p>No data yet. Start recording memories to see analytics!</p>
                 </div>
             )}

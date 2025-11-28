@@ -144,20 +144,31 @@ Respond with JSON:
 /**
  * Generate habit analysis for Analytics view
  */
+/**
+ * Generate habit analysis for Analytics view
+ */
 export async function generateHabitAnalysis(memories: Memory[]): Promise<{ pattern: string, suggestion: string, productivityScore: number }> {
     try {
+        if (memories.length < 3) {
+            return {
+                pattern: "Not enough data yet",
+                suggestion: "Keep capturing your thoughts to unlock insights!",
+                productivityScore: 50,
+            };
+        }
+
         const context = memories
-            .map(m => `${m.category} | ${m.created_at} | ${m.is_completed}`)
+            .map(m => `${m.category} | ${new Date(m.created_at).toLocaleString()} | ${m.is_completed}`)
             .join('\n');
 
         const completion = await groq.chat.completions.create({
             messages: [
                 {
                     role: 'system',
-                    content: `As a productivity coach, analyze the user's memory patterns:
-1. Identify a behavioral pattern (e.g., "You capture most ideas in the morning")
-2. Provide one actionable suggestion
-3. Give a productivity score (1-100) based on capture and completion balance
+                    content: `As a productivity coach, analyze the user's memory patterns based strictly on the provided data.
+1. Identify a behavioral pattern (e.g., "You capture most ideas in the morning"). If no clear pattern, say "No clear pattern yet".
+2. Provide one actionable suggestion based on the data.
+3. Give a productivity score (1-100) based on capture and completion balance.
 
 Respond with JSON:
 {
@@ -172,7 +183,7 @@ Respond with JSON:
                 },
             ],
             model: 'llama-3.3-70b-versatile',
-            temperature: 0.7,
+            temperature: 0.5,
             response_format: { type: 'json_object' },
         });
 

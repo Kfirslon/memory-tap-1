@@ -14,10 +14,10 @@ interface MemoryCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-    task: 'bg-blue-100 text-blue-700',
-    reminder: 'bg-amber-100 text-amber-700',
-    idea: 'bg-purple-100 text-purple-700',
-    note: 'bg-slate-100 text-slate-700',
+    task: 'bg-primary-500/10 text-primary-300 border border-primary-500/20',
+    reminder: 'bg-amber-500/10 text-amber-300 border border-amber-500/20',
+    idea: 'bg-accent-500/10 text-accent-300 border border-accent-500/20',
+    note: 'bg-slate-500/10 text-slate-300 border border-slate-500/20',
 };
 
 export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete, onDelete }: MemoryCardProps) {
@@ -29,35 +29,36 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className={`bg-white rounded-3xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all ${memory.is_completed ? 'opacity-60' : ''
+            className={`glass-card rounded-3xl p-5 hover:border-primary-500/30 transition-all group ${memory.is_completed ? 'opacity-60' : ''
                 }`}
         >
             {/* Header */}
-            <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-start justify-between gap-3 mb-4">
                 <div className="flex-grow">
                     <div className="flex items-center gap-2 mb-2">
                         <span className={`text-xs font-bold px-3 py-1 rounded-full ${categoryColors[memory.category]}`}>
-                            {memory.category}
+                            {memory.category.toUpperCase()}
                         </span>
                         {memory.is_favorite && (
-                            <Star size={14} className="text-amber-500" fill="currentColor" />
+                            <Star size={14} className="text-amber-400" fill="currentColor" />
                         )}
                     </div>
-                    <h3 className={`text-lg font-bold text-slate-900 mb-1 ${memory.is_completed ? 'line-through' : ''}`}>
+                    <h3 className={`text-lg font-bold text-white mb-1 ${memory.is_completed ? 'line-through text-slate-500' : ''}`}>
                         {memory.title}
                     </h3>
-                    <p className="text-sm text-slate-600">{memory.summary}</p>
+                    <p className="text-sm text-slate-400">{memory.summary}</p>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                         onClick={() => onToggleFavorite(memory.id)}
-                        className="p-2 hover:bg-slate-50 rounded-xl transition-colors"
+                        className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                        title="Favorite"
                     >
                         <Star
                             size={18}
-                            className={memory.is_favorite ? 'text-amber-500' : 'text-slate-300'}
+                            className={memory.is_favorite ? 'text-amber-400' : 'text-slate-500'}
                             fill={memory.is_favorite ? 'currentColor' : 'none'}
                         />
                     </button>
@@ -65,11 +66,12 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
                     {(memory.category === 'task' || memory.category === 'reminder') && (
                         <button
                             onClick={() => onToggleComplete(memory.id)}
-                            className="p-2 hover:bg-slate-50 rounded-xl transition-colors"
+                            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                            title="Complete"
                         >
                             <Check
                                 size={18}
-                                className={memory.is_completed ? 'text-green-500' : 'text-slate-300'}
+                                className={memory.is_completed ? 'text-emerald-400' : 'text-slate-500'}
                                 strokeWidth={3}
                             />
                         </button>
@@ -77,16 +79,17 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
 
                     <button
                         onClick={() => onDelete(memory.id)}
-                        className="p-2 hover:bg-red-50 rounded-xl transition-colors"
+                        className="p-2 hover:bg-red-500/20 rounded-xl transition-colors"
+                        title="Delete"
                     >
-                        <Trash2 size={18} className="text-red-400 hover:text-red-600" />
+                        <Trash2 size={18} className="text-slate-500 hover:text-red-400" />
                     </button>
                 </div>
             </div>
 
             {/* Audio Player */}
             {memory.audio_url && (
-                <div className="mb-3">
+                <div className="mb-4">
                     <AudioPlayer audioUrl={memory.audio_url} />
                 </div>
             )}
@@ -94,7 +97,7 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
             {/* Expand / Collapse */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-center gap-1 text-xs text-slate-500 hover:text-slate-700 transition-colors py-1"
+                className="w-full flex items-center justify-center gap-1 text-xs text-slate-500 hover:text-primary-400 transition-colors py-1"
             >
                 {isExpanded ? (
                     <>
@@ -113,9 +116,9 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
                 animate={{ height: isExpanded ? 'auto' : 0 }}
                 className="overflow-hidden"
             >
-                <div className="pt-3 border-t border-slate-100 mt-2">
-                    <p className="text-sm text-slate-700 leading-relaxed">{memory.content}</p>
-                    <p className="text-xs text-slate-400 mt-2">
+                <div className="pt-4 border-t border-white/5 mt-2">
+                    <p className="text-sm text-slate-300 leading-relaxed">{memory.content}</p>
+                    <p className="text-xs text-slate-600 mt-3 font-mono">
                         {new Date(memory.created_at).toLocaleString()}
                     </p>
                 </div>
