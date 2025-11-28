@@ -1,0 +1,7 @@
+{
+  "name": "Memory Tap",
+  "description": "A premium voice-first memory assistant. Record, transcribe, and organize your thoughts using AI.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
