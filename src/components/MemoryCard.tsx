@@ -11,6 +11,7 @@ interface MemoryCardProps {
     onToggleFavorite: (id: string) => void;
     onToggleComplete: (id: string) => void;
     onDelete: (id: string) => void;
+    onUpdate?: (id: string, updates: { title: string; content: string }) => void;
 }
 
 const categoryColors: Record<string, string> = {
@@ -20,8 +21,63 @@ const categoryColors: Record<string, string> = {
     note: 'bg-slate-500/10 text-slate-300 border border-slate-500/20',
 };
 
-export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete, onDelete }: MemoryCardProps) {
+export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete, onDelete, onUpdate }: MemoryCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editTitle, setEditTitle] = useState(memory.title);
+    const [editContent, setEditContent] = useState(memory.content);
+
+    const handleSave = () => {
+        if (onUpdate) {
+            onUpdate(memory.id, { title: editTitle, content: editContent });
+        }
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setEditTitle(memory.title);
+        setEditContent(memory.content);
+        setIsEditing(false);
+    };
+
+    if (isEditing) {
+        return (
+            <motion.div
+                layout
+                className="glass-card rounded-3xl p-5 border-primary-500/50"
+            >
+                <div className="space-y-4">
+                    <input
+                        type="text"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-white font-bold focus:outline-none focus:border-primary-500/50"
+                        placeholder="Title"
+                    />
+                    <textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-slate-300 text-sm focus:outline-none focus:border-primary-500/50 min-h-[100px]"
+                        placeholder="Content"
+                    />
+                    <div className="flex justify-end gap-2">
+                        <button
+                            onClick={handleCancel}
+                            className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            className="px-4 py-2 rounded-xl text-sm font-medium bg-primary-600 text-white hover:bg-primary-500 transition-colors shadow-glow"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+        );
+    }
 
     return (
         <motion.div
@@ -34,7 +90,7 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
         >
             {/* Header */}
             <div className="flex items-start justify-between gap-3 mb-4">
-                <div className="flex-grow">
+                <div className="flex-grow cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
                     <div className="flex items-center gap-2 mb-2">
                         <span className={`text-xs font-bold px-3 py-1 rounded-full ${categoryColors[memory.category]}`}>
                             {memory.category.toUpperCase()}
@@ -46,7 +102,7 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
                     <h3 className={`text-lg font-bold text-white mb-1 ${memory.is_completed ? 'line-through text-slate-500' : ''}`}>
                         {memory.title}
                     </h3>
-                    <p className="text-sm text-slate-400">{memory.summary}</p>
+                    <p className="text-sm text-slate-400 line-clamp-2">{memory.summary}</p>
                 </div>
 
                 {/* Action Buttons */}
@@ -78,6 +134,14 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
                     )}
 
                     <button
+                        onClick={() => setIsEditing(true)}
+                        className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                        title="Edit"
+                    >
+                        <ChevronDown size={18} className="text-slate-500 hover:text-primary-400 rotate-90" />
+                    </button>
+
+                    <button
                         onClick={() => onDelete(memory.id)}
                         className="p-2 hover:bg-red-500/20 rounded-xl transition-colors"
                         title="Delete"
@@ -88,7 +152,7 @@ export default function MemoryCard({ memory, onToggleFavorite, onToggleComplete,
             </div>
 
             {/* Audio Player */}
-            {memory.audio_url && (
+            {memory.audio_url && isExpanded && (
                 <div className="mb-4">
                     <AudioPlayer audioUrl={memory.audio_url} />
                 </div>

@@ -204,6 +204,25 @@ export default function Home() {
         }
     };
 
+    const handleUpdateMemory = async (id: string, updates: { title: string; content: string }) => {
+        try {
+            const { error } = await supabase
+                .from('memories')
+                .update(updates)
+                .eq('id', id);
+
+            if (error) throw error;
+
+            setMemories((prev) =>
+                prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
+            );
+            toast('Memory updated successfully');
+        } catch (error) {
+            console.error('Update error:', error);
+            toast('Failed to update memory', 'error');
+        }
+    };
+
     const handleDelete = async (id: string) => {
         if (!window.confirm('Delete this memory?')) return;
 
@@ -364,6 +383,7 @@ export default function Home() {
                                                 onToggleFavorite={handleToggleFavorite}
                                                 onToggleComplete={handleToggleComplete}
                                                 onDelete={handleDelete}
+                                                onUpdate={handleUpdateMemory}
                                             />
                                         ))}
                                     </AnimatePresence>
